@@ -148,7 +148,6 @@ int main()
                     }
                     if (is_invalid)
                     {
-                        printf("%ld\n", k);
                         sum2 += k;
                         partition = 0;
                         break;
