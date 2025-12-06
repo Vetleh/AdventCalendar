@@ -54,3 +54,5 @@ dkms.conf
 # debug information files
 *.dwo
 *.out
+day*/*.gz
+day*/main

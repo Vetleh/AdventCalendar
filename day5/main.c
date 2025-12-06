@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
+
+#include "../utilities/file_utils.h"
 
 int compareRows(const void *a, const void *b)
 {
@@ -15,198 +18,75 @@ int compareRows(const void *a, const void *b)
     return 0;
 }
 
+#define MAX_RANGES 200
+#define MAX_INGS 1000
+
 int main()
 {
-    FILE *fptr;
-    char filename[] = "input.txt";
+    size_t size = 0;
+    char *buffer = read_text_file("input.txt", &size);
 
-    fptr = fopen(filename, "r");
+    long range[MAX_RANGES][2];
+    char *ingredients[MAX_INGS];
+    size_t range_count = 0, ingredients_count = 0;
 
-    if (!fptr)
+    char *seperator = strstr(buffer, "\n\n");
+
+    *seperator = '\0';
+    char *ranges_part = buffer;
+    char *ingredients_offset = seperator + 2;
+
+    char *line = strtok(ranges_part, "\n");
+    while (line && range_count < MAX_RANGES)
     {
-        perror("fopen");
-        return 1;
+        char *dash = strchr(line, '-');
+        *dash = '\0';
+
+        range[range_count][0] = atol(line);
+        range[range_count][1] = atol(dash + 1);
+
+        range_count++;
+        line = strtok(NULL, "\n");
     }
 
-    if (fseek(fptr, 0, SEEK_END) != 0)
+    line = strtok(ingredients_offset, "\n");
+    while (line && ingredients_count < MAX_INGS)
     {
-        perror("fseek");
-        fclose(fptr);
-        return 1;
+        ingredients[ingredients_count++] = line;
+        line = strtok(NULL, "\n");
     }
 
-    long file_size = ftell(fptr);
-    if (file_size < 0)
-    {
-        perror("ftell");
-        fclose(fptr);
-        return 1;
-    }
-
-    rewind(fptr);
-
-    char *buffer = (char *)malloc(file_size + 1);
-    long i = 0;
-    long ch;
-    while ((ch = fgetc(fptr)) != EOF)
-    {
-        buffer[i++] = (char)ch;
-    }
-    buffer[i] = '\0';
-
-    char range_start_number[30];
-    char range_end_number[30];
-    int reading_start = 1;
-    int number_buffer_index = 0;
-
-    int ingredients_start = 0;
-
-    for (int j = 0; j < i; j++)
-    {
-        if (buffer[j] == '\n' && buffer[j + 1] == '\n')
-        {
-            ingredients_start = j + 2;
-            break;
-        }
-    }
-
-    char curr_ingredient[30];
-    int counter = 0;
     int fresh_ingredients = 0;
 
-    for (long j = ingredients_start; j < i - 1; j++)
+    for (int i = 0; i < ingredients_count; i++)
     {
-        if (buffer[j] != '\n')
+        long ingredient = atol(ingredients[i]);
+        for (int j = 0; j < range_count; j++)
         {
-            curr_ingredient[counter] = buffer[j];
-            counter++;
-            continue;
-        }
-        else
-        {
-            counter = 0;
-        }
+            long start_range = range[j][0];
+            long end_range = range[j][1];
 
-        long ingredient = atol(curr_ingredient);
-
-        for (long k = 0; k < ingredients_start - 2; k++)
-        {
-            if (buffer[k] == '-')
+            if (ingredient >= start_range && ingredient <= end_range)
             {
-                reading_start = 0;
-                number_buffer_index = 0;
-                continue;
-            }
-            if (buffer[k] == '\n')
-            {
-                reading_start = 1;
-                number_buffer_index = 0;
-                long start_range = atol(range_start_number);
-                long end_range = atol(range_end_number);
-
-                if (ingredient >= start_range && ingredient <= end_range)
-                {
-                    fresh_ingredients++;
-                    memset(range_start_number, '\0', sizeof(range_start_number));
-                    memset(range_end_number, '\0', sizeof(range_end_number));
-                    memset(curr_ingredient, '\0', sizeof(curr_ingredient));
-                    counter = 0;
-                    break;
-                }
-
-                memset(range_start_number, '\0', sizeof(range_start_number));
-                memset(range_end_number, '\0', sizeof(range_end_number));
-                memset(curr_ingredient, '\0', sizeof(curr_ingredient));
-                counter = 0;
-                continue;
-            }
-
-            if (reading_start)
-            {
-                range_start_number[number_buffer_index] = buffer[k];
-                number_buffer_index++;
-            }
-            else
-            {
-                range_end_number[number_buffer_index] = buffer[k];
-                number_buffer_index++;
+                fresh_ingredients++;
+                break;
             }
         }
-
-        memset(range_start_number, '\0', sizeof(range_start_number));
-        memset(range_end_number, '\0', sizeof(range_end_number));
-        memset(curr_ingredient, '\0', sizeof(curr_ingredient));
     }
 
-    long number_ranges[i][2];
-    for (int j = 0; j < i; j++)
-    {
-        number_ranges[j][0] = 0;
-        number_ranges[j][1] = 0;
-    }
-    reading_start = 1;
-    int number_range_counter = 0;
     long fresh_range_sum = 0;
-    number_buffer_index = 0;
-    for (long k = 0; k < ingredients_start - 1; k++)
+
+    qsort(range, range_count, sizeof range[0], compareRows);
+
+    for (long i = 0; i < range_count; i++)
     {
-        if (buffer[k] == '-')
+        long start = range[i][0];
+        long end = range[i][1];
+
+        for (long j = i + 1; j < range_count; j++)
         {
-            reading_start = 0;
-            number_buffer_index = 0;
-            continue;
-        }
-        if (buffer[k] == '\n' || buffer[k] == '\0')
-        {
-            reading_start = 1;
-            number_buffer_index = 0;
-            long start_range = atol(range_start_number);
-            long end_range = atol(range_end_number);
-            number_ranges[number_range_counter][0] = start_range;
-            number_ranges[number_range_counter][1] = end_range;
-            number_range_counter++;
-
-            memset(range_start_number, '\0', sizeof(range_start_number));
-            memset(range_end_number, '\0', sizeof(range_end_number));
-            continue;
-        }
-
-        if (reading_start)
-        {
-            range_start_number[number_buffer_index] = buffer[k];
-            number_buffer_index++;
-        }
-        else
-        {
-            range_end_number[number_buffer_index] = buffer[k];
-            number_buffer_index++;
-        }
-    }
-
-    int iter = 0;
-
-    qsort(number_ranges, i, sizeof number_ranges[0], compareRows);
-
-    for (long j = 0; j < i; j++)
-    {
-        if (number_ranges[j][0] == 0)
-            continue;
-
-        iter++;
-    }
-    int skipidx = 0;
-    for (long j = 0; j < i; j++)
-    {
-        if (number_ranges[j][0] == 0)
-            continue;
-
-        long start = number_ranges[j][0];
-        long end = number_ranges[j][1];
-
-        for (long k = j + 1; k < i; k++)
-        {
-            long start_check = number_ranges[k][0];
-            long end_check = number_ranges[k][1];
+            long start_check = range[j][0];
+            long end_check = range[j][1];
             if (end >= start_check)
             {
                 if (end_check >= end)
@@ -214,7 +94,7 @@ int main()
                     end = end_check;
                 }
 
-                j++;
+                i++;
             }
             else
             {
@@ -225,8 +105,8 @@ int main()
         fresh_range_sum += (end - start) + 1;
     }
 
-    printf("Number of fresh ingredients: %d ", fresh_ingredients);
-    printf("Sum fresh range: %ld ", fresh_range_sum);
+    assert(fresh_ingredients == 862);
+    assert(fresh_range_sum == 357907198933892);
 
     return 0;
 }

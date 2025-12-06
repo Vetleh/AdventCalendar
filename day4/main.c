@@ -1,43 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
+#include "../utilities/file_utils.h"
 
 int main()
 {
-    FILE *fptr;
-    char filename[] = "input.txt";
-
-    fptr = fopen(filename, "r");
-
-    fseek(fptr, 0, SEEK_END);
-    long file_size = ftell(fptr);
-    rewind(fptr);
-
-    char *buffer = (char *)malloc(file_size + 1);
-
-    int i = 0;
+    size_t size = 0;
+    char *buffer = read_text_file("input.txt", &size);
     int line_length = 0;
-    int ch;
-    while ((ch = fgetc(fptr)) != EOF)
+    while (1)
     {
-        if (ch == '\n')
-        {
-            line_length = 0;
-        }
-        else
+        if (buffer[line_length] == '\n')
         {
             line_length++;
+            break;
         }
-        buffer[i++] = (char)ch;
+        line_length++;
     }
-    buffer[i] = '\0';
 
-    line_length++; // account for newline character
     int items_removed = 0;
 
     while (1)
     {
         int has_changes = 0;
-        for (int j = 0; j < (i / line_length) + 1; j++)
+        for (int j = 0; j < (size / line_length) + 1; j++)
         {
             for (int k = 0; k < line_length; k++)
             {
@@ -75,7 +62,7 @@ int main()
                 }
 
                 // below
-                if (j + 1 < (i / line_length) + 1)
+                if (j + 1 < (size / line_length) + 1)
                 {
                     for (int m = -1; m < 2; m++)
                     {
@@ -101,10 +88,7 @@ int main()
         }
     }
 
-    printf("valid count: %d\n", items_removed);
-
-    fclose(fptr);
-    free(buffer);
+    assert(items_removed == 9122);
 
     return 0;
 }

@@ -2,174 +2,109 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
+
+#include "../utilities/file_utils.h"
+
+#define MAX_ROWS 256
+#define MAX_LEN 32
 
 int main()
 {
-    FILE *fptr;
-    char filename[] = "input.txt";
+    size_t size = 0;
+    char *buffer = read_text_file("input.txt", &size);
+    int count = 0;
 
-    fptr = fopen(filename, "r");
+    char *pairs[MAX_ROWS][2];
 
-    fseek(fptr, 0, SEEK_END);
-    long file_size = ftell(fptr);
-    rewind(fptr);
-
-    char *buffer = (char *)malloc(file_size + 1);
-
-    int i = 0;
-    int ch;
-    while ((ch = fgetc(fptr)) != EOF)
+    char *pair = strtok(buffer, ",");
+    while (pair && count < MAX_ROWS)
     {
-        buffer[i++] = (char)ch;
+        char *dash = strchr(pair, '-');
+        if (!dash)
+            break;
+
+        *dash = '\0';
+
+        pairs[count][0] = pair;
+        pairs[count][1] = dash + 1;
+
+        count++;
+        pair = strtok(NULL, ",");
     }
-    buffer[i] = '\0';
-    int number_buffer_index = 0;
-    int reading_start = 1;
-    char range_start_number[50];
-    char range_end_number[50];
-    char number_to_check[50];
-    long sum = 0;
-    long sum2 = 0;
 
-    for (int j = 0; j < i + 1; j++)
+    // part 1
+    char str[20];
+    long sum_invalid_pt1 = 0;
+
+    for (int i = 0; i < count; i++)
     {
-        if (buffer[j] == '-')
+        for (long k = atol(pairs[i][0]); k <= atol(pairs[i][1]); k++)
         {
-            reading_start = 0;
-            number_buffer_index = 0;
-            continue;
-        }
-        if (buffer[j] == ',' || buffer[j] == '\0')
-        {
-            reading_start = 1;
-            number_buffer_index = 0;
-            long start_range = atol(range_start_number);
-            long end_range = atol(range_end_number);
+            sprintf(str, "%ld", k);
+            int str_len = strlen(str);
 
-            for (long k = start_range; k <= end_range; k++)
+            if (str_len % 2 != 0)
             {
-                sprintf(number_to_check, "%ld", k);
-                int length_of_number = strlen(number_to_check);
-
-                // Part 1
-                if (length_of_number % 2 != 0)
-                {
-                    continue;
-                }
-
-                int half_length = length_of_number / 2;
-                for (int m = 0; m < half_length; m++)
-                {
-                    if (number_to_check[m] != number_to_check[m + half_length])
-                    {
-                        break;
-                    }
-                    else if (m == half_length - 1)
-                    {
-                        sum += k;
-                    }
-                }
+                continue;
             }
-            memset(range_start_number, '\0', sizeof(range_start_number));
-            memset(range_end_number, '\0', sizeof(range_end_number));
-            continue;
-        }
-        if (reading_start)
-        {
-            range_start_number[number_buffer_index] = buffer[j];
-            number_buffer_index++;
-        }
-        else
-        {
-            range_end_number[number_buffer_index] = buffer[j];
-            number_buffer_index++;
+
+            int half_length = str_len / 2;
+            if (memcmp(str, str + half_length, half_length) == 0)
+            {
+                sum_invalid_pt1 += k;
+            };
         }
     }
 
     // Part 2
+
+    long sum_invalid_pt2 = 0;
     int partition = 1;
 
-    for (int j = 0; j < i + 1; j++)
+    for (int i = 0; i < count; i++)
     {
-        if (buffer[j] == '-')
+        for (long j = atol(pairs[i][0]); j <= atol(pairs[i][1]); j++)
         {
-            reading_start = 0;
-            number_buffer_index = 0;
-            continue;
-        }
-        if (buffer[j] == ',' || buffer[j] == '\0')
-        {
-            reading_start = 1;
-            number_buffer_index = 0;
-            long start_range = atol(range_start_number);
-            long end_range = atol(range_end_number);
-
-            for (long k = start_range; k <= end_range; k++)
+            sprintf(str, "%ld", j);
+            int str_len = strlen(str);
+            while (1)
             {
-                sprintf(number_to_check, "%ld", k);
-                int length_of_number = strlen(number_to_check);
-                char first_partition[50];
-                char compare_partition[50];
+                if (partition > 5)
+                    break;
 
-                int is_invalid = 0;
-                while (1)
+                if (str_len % partition != 0)
                 {
-                    if (length_of_number <= partition)
-                    {
-                        partition = 0;
-                        break;
-                    }
-                    if (length_of_number % partition != 0)
-                    {
-                        partition++;
-                        continue;
-                    }
-
-                    for (int m = 0; m <= length_of_number; m += partition)
-                    {
-                        if (m == length_of_number)
-                        {
-                            is_invalid = 1;
-                        }
-                        int break_early = 0;
-                        for (int n = 0; n < partition; n++)
-                        {
-
-                            if (number_to_check[n] != number_to_check[m + n])
-                            {
-                                break_early = 1;
-                                break;
-                            }
-                        }
-                        if (break_early)
-                        {
-                            break;
-                        }
-                    }
-                    if (is_invalid)
-                    {
-                        sum2 += k;
-                        partition = 0;
-                        break;
-                    }
                     partition++;
+                    continue;
                 }
+
+                if (partition == str_len)
+                    break;
+
+                int is_invalid = 1;
+
+                for (int k = partition; k < str_len; k += partition)
+                {
+                    if (memcmp(str, str + k, partition) != 0)
+                    {
+                        is_invalid = 0;
+                        break;
+                    }
+                }
+
+                if (is_invalid)
+                {
+                    sum_invalid_pt2 += j;
+                    break;
+                }
+
+                partition++;
             }
-            memset(range_start_number, '\0', sizeof(range_start_number));
-            memset(range_end_number, '\0', sizeof(range_end_number));
-            continue;
-        }
-        if (reading_start)
-        {
-            range_start_number[number_buffer_index] = buffer[j];
-            number_buffer_index++;
-        }
-        else
-        {
-            range_end_number[number_buffer_index] = buffer[j];
-            number_buffer_index++;
+            partition = 1;
         }
     }
-    printf("Sum part 1: %ld\n", sum);
-    printf("Sum part 2: %ld\n", sum2);
+
+    assert(sum_invalid_pt1 == 21898734247);
+    assert(sum_invalid_pt2 == 28915664389);
 }

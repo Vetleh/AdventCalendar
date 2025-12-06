@@ -2,84 +2,60 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
+
+#include "../utilities/file_utils.h"
+#define MAX_TOKENS 5000
 
 int main()
 {
-    FILE *fptr;
-    char filename[] = "input.txt";
+    size_t size = 0;
+    char *buffer = read_text_file("input.txt", &size);
 
-    fptr = fopen(filename, "r");
+    int current_position = 50, last_position = 50, rotations = 0, points_to_zero = 0;
+    char seperator = '\n';
+    char delim[2] = {seperator, '\0'};
 
-    fseek(fptr, 0, SEEK_END);
-    long file_size = ftell(fptr);
-    rewind(fptr);
+    char *tokens[MAX_TOKENS];
+    int count = 0;
 
-    char *buffer = (char *)malloc(file_size + 1);
-
-    int i = 0;
-    int line_length = 0;
-    int ch;
-    while ((ch = fgetc(fptr)) != EOF)
+    char *tok = strtok(buffer, delim);
+    while (tok && count < MAX_TOKENS)
     {
-        if (ch == '\n')
+        tokens[count++] = tok;
+        tok = strtok(NULL, delim);
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        points_to_zero += current_position == 0;
+        last_position = current_position;
+
+        int movement = atoi(tokens[i] + 1);
+
+        if (tokens[i][0] == 'R')
         {
-            line_length = 0;
+            current_position += movement;
+            rotations += floor(current_position / 100);
         }
         else
         {
-            line_length++;
+            current_position -= movement;
+            rotations += -floor(current_position / 100);
+            if (current_position <= 0 && last_position != 0)
+            {
+                rotations++;
+            }
         }
-        buffer[i++] = (char)ch;
-    }
-    buffer[i] = '\0';
 
-    int current_position = 50;
-    char command[5];
-    int command_counter = 0;
-    int rotations = 0;
-    int points_to_zero = 0;
-    for (i = 0; i < file_size + 1; i++)
-    {
-        int last_position = current_position;
-        if (buffer[i] == '\n' || buffer[i] == '\0')
+        current_position = current_position % 100;
+
+        if (current_position < 0)
         {
-            int movement = atoi(command + 1);
-            if (command[0] == 'R')
-            {
-                current_position += movement;
-                rotations += floor(current_position / 100);
-            }
-            else
-            {
-                current_position -= movement;
-                rotations += -floor(current_position / 100);
-                if (current_position <= 0 && last_position != 0)
-                {
-                    rotations++;
-                }
-            }
-
-            current_position = current_position % 100;
-
-            if (current_position < 0)
-            {
-                current_position += 100;
-            }
-
-            if (current_position == 0)
-            {
-                points_to_zero++;
-            }
-
-            command_counter = 0;
-            memset(command, '\0', sizeof(command));
-        }
-        else
-        {
-            command[command_counter] = buffer[i];
-            command_counter++;
+            current_position += 100;
         }
     }
-    printf("Points to zero: %d\n", points_to_zero);
-    printf("Rotations: %d\n", rotations);
+
+    assert(points_to_zero == 1092);
+    assert(rotations == 6616);
 }
