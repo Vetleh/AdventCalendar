@@ -61,11 +61,11 @@ timeall:
 	{ \
 		echo "# Timings"; \
 		echo ""; \
-		echo "| Day | Part 1 (ms) | Part 2 (ms) |"; \
+		echo "| Day | Part 1 (µs) | Part 2 (µs) |"; \
 		echo "|---:|---:|---:|"; \
 	} > "$$out"; \
 	\
-	now_ms() { perl -MTime::HiRes -e 'printf "%.0f\n", Time::HiRes::time()*1000'; }; \
+	now_us() { perl -MTime::HiRes -e 'printf "%.0f\n", Time::HiRes::time()*1000000'; }; \
 	debug() { if [ "$(DEBUG)" = "1" ]; then echo "DEBUG: $$*" >&2; fi; }; \
 	\
 	for d in $(DAYS); do \
@@ -74,21 +74,21 @@ timeall:
 		\
 		cd "day$$d"; \
 		\
-		start_pt1=$$(now_ms); \
+		start_pt1=$$(now_us); \
 		./pt1 >/dev/null; \
-		end_pt1=$$(now_ms); \
-		pt1_ms=$$(( end_pt1 - start_pt1 )); \
-		debug "day $$d pt1 start=$$start_pt1 end=$$end_pt1 ms=$$pt1_ms"; \
+		end_pt1=$$(now_us); \
+		pt1_us=$$(( end_pt1 - start_pt1 )); \
+		debug "day $$d pt1 start=$$start_pt1 end=$$end_pt1 us=$$pt1_us"; \
 		\
-		start_pt2=$$(now_ms); \
+		start_pt2=$$(now_us); \
 		./pt2 >/dev/null; \
-		end_pt2=$$(now_ms); \
-		pt2_ms=$$(( end_pt2 - start_pt2 )); \
-		debug "day $$d pt2 start=$$start_pt2 end=$$end_pt2 ms=$$pt2_ms"; \
+		end_pt2=$$(now_us); \
+		pt2_us=$$(( end_pt2 - start_pt2 )); \
+		debug "day $$d pt2 start=$$start_pt2 end=$$end_pt2 us=$$pt2_us"; \
 		\
 		cd ..; \
 		\
-		printf "| day%s | %s | %s |\n" "$$d" "$$pt1_ms" "$$pt2_ms" >> "$$out"; \
+		printf "| day%s | %s | %s |\n" "$$d" "$$pt1_us" "$$pt2_us" >> "$$out"; \
 	done; \
 	\
 	echo "" >> "$$out"; \
