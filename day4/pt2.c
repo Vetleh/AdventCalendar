@@ -4,11 +4,11 @@
 
 #include "../utilities/file_utils.h"
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
-    int line_length = 0;
+    size_t line_length = 0;
     while (1)
     {
         if (buffer[line_length] == '\n')
@@ -24,9 +24,9 @@ int main()
     while (1)
     {
         int has_changes = 0;
-        for (int j = 0; j < (size / line_length) + 1; j++)
+        for (size_t j = 0; j < (size / line_length) + 1; j++)
         {
-            for (int k = 0; k < line_length; k++)
+            for (size_t k = 0; k < line_length; k++)
             {
                 int neighbors = 0;
                 if (buffer[j * line_length + k] != '@')

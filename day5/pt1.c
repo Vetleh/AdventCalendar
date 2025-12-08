@@ -21,7 +21,7 @@ int compareRows(const void *a, const void *b)
 #define MAX_RANGES 200
 #define MAX_INGS 1000
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
@@ -58,10 +58,10 @@ int main()
 
     int fresh_ingredients = 0;
 
-    for (int i = 0; i < ingredients_count; i++)
+    for (size_t i = 0; i < ingredients_count; i++)
     {
         long ingredient = atol(ingredients[i]);
-        for (int j = 0; j < range_count; j++)
+        for (size_t j = 0; j < range_count; j++)
         {
             long start_range = range[j][0];
             long end_range = range[j][1];
@@ -74,39 +74,7 @@ int main()
         }
     }
 
-    long fresh_range_sum = 0;
-
-    qsort(range, range_count, sizeof range[0], compareRows);
-
-    for (long i = 0; i < range_count; i++)
-    {
-        long start = range[i][0];
-        long end = range[i][1];
-
-        for (long j = i + 1; j < range_count; j++)
-        {
-            long start_check = range[j][0];
-            long end_check = range[j][1];
-            if (end >= start_check)
-            {
-                if (end_check >= end)
-                {
-                    end = end_check;
-                }
-
-                i++;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        fresh_range_sum += (end - start) + 1;
-    }
-
     assert(fresh_ingredients == 862);
-    assert(fresh_range_sum == 357907198933892);
 
     return 0;
 }

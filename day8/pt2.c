@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include <stdint.h>
+#include <assert.h>
+
+#include "../utilities/file_utils.h"
+
+typedef struct
+{
+    int a, b;
+    unsigned long long d2;
+} Edge;
+
+typedef long coord3_t[3];
+
+static coord3_t(*parse_coords(char *buffer, size_t size, size_t *out_rows))
+{
+    int rows = 1;
+    for (size_t i = 0; i < size; i++)
+    {
+        if (buffer[i] == '\n')
+        {
+            rows++;
+        }
+    }
+
+    long (*coords)[3] = malloc((size_t)rows * sizeof *coords);
+    int point_count = 0;
+
+    char *line = strtok(buffer, "\n");
+    while (line && point_count < rows)
+    {
+        char *c1 = strchr(line, ',');
+        char *c2 = strchr(c1 + 1, ',');
+
+        coords[point_count][0] = atol(line);
+        coords[point_count][1] = atol(c1 + 1);
+        coords[point_count][2] = atol(c2 + 1);
+
+        point_count++;
+        line = strtok(NULL, "\n");
+    }
+
+    *out_rows = (size_t)point_count;
+    return coords;
+}
+
+static unsigned long long dist(long x1, long y1, long z1, long x2, long y2, long z2)
+{
+    long dx = x2 - x1;
+    long dy = y2 - y1;
+    long dz = z2 - z1;
+
+    long sum = 0;
+    sum += dx * dx;
+    sum += dy * dy;
+    sum += dz * dz;
+
+    return sum;
+}
+
+static int cmp_edge(const void *p, const void *q)
+{
+    const Edge *e1 = (const Edge *)p;
+    const Edge *e2 = (const Edge *)q;
+    if (e1->d2 < e2->d2)
+    {
+        return -1;
+    }
+
+    if (e1->d2 > e2->d2)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int find_root(int *parent, int node)
+{
+    while (parent[node] != node)
+    {
+        parent[node] = parent[parent[node]];
+        node = parent[node];
+    }
+    return node;
+}
+
+static void union_by_size(int *parent, int *component_size, int node_a, int node_b)
+{
+    int root_a = find_root(parent, node_a);
+    int root_b = find_root(parent, node_b);
+
+    if (root_a == root_b)
+        return;
+
+    if (component_size[root_a] < component_size[root_b])
+    {
+        int tmp = root_a;
+        root_a = root_b;
+        root_b = tmp;
+    }
+
+    parent[root_b] = root_a;
+    component_size[root_a] += component_size[root_b];
+}
+
+int main(void)
+{
+    size_t size = 0;
+    char *buffer = read_text_file("input.txt", &size);
+
+    size_t count = 0;
+    long (*coords)[3] = parse_coords(buffer, size, &count);
+
+    size_t m = count * (count - 1) / 2;
+    Edge *edges = malloc(m * sizeof *edges);
+
+    int idx = 0;
+    for (size_t i = 0; i < count; i++)
+    {
+        for (size_t j = i + 1; j < count; j++)
+        {
+            edges[idx].a = i;
+            edges[idx].b = j;
+            edges[idx].d2 = dist(
+                coords[i][0], coords[i][1], coords[i][2],
+                coords[j][0], coords[j][1], coords[j][2]);
+            idx++;
+        }
+    }
+
+    qsort(edges, m, sizeof *edges, cmp_edge);
+
+    int *parent = malloc(count * sizeof *parent);
+    int *size_array = malloc(count * sizeof *size_array);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        parent[i] = i;
+        size_array[i] = 1;
+    }
+
+    size_t circuits = count;
+    long long answer = 0;
+
+    for (size_t k = 0; k < m && circuits > 1; k++)
+    {
+        int a = edges[k].a;
+        int b = edges[k].b;
+
+        if (find_root(parent, a) != find_root(parent, b))
+        {
+            union_by_size(parent, size_array, a, b);
+            circuits--;
+
+            answer = (long long)coords[a][0] * (long long)coords[b][0];
+        }
+    }
+
+    assert(answer == 8663467782);
+
+    return 0;
+}

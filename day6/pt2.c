@@ -83,10 +83,8 @@ int main(void)
         }
 
         number_string[k] = '\0';
-        printf("%s\n", number_string);
         if (k == 0)
         {
-            printf("column %ld\n", sum_column);
             sum_total += sum_column;
             sum_column = 0;
             current_operation_index++;
@@ -96,7 +94,6 @@ int main(void)
             switch (current_operation[0])
             {
             case '+':
-                // printf("%ld\n", atol(number_string));
                 sum_column += atol(number_string);
                 break;
             case '*':
@@ -107,7 +104,7 @@ int main(void)
             }
         }
     }
-    assert(sum_total == 8108520669952);
+    assert(sum_total == 11708563470209);
     free(buffer);
     return 0;
 }

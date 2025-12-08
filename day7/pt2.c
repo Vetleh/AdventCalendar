@@ -8,7 +8,9 @@
 static long follow_timeline(const char *buffer, size_t size, int start_idx, int cols, long *memo)
 {
     if (memo[start_idx] != -1)
+    {
         return memo[start_idx];
+    }
 
     for (int idx = start_idx; idx < (int)size; idx += cols)
     {
@@ -62,8 +64,5 @@ int main(void)
     }
 
     assert(res == 15811946526915);
-
-    free(memo);
-    free(buffer);
     return 0;
 }

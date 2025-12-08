@@ -13,8 +13,6 @@ int main(void)
 
     int res = 0;
 
-    int s_idx = 0;
-
     int row_width = 0;
     for (size_t i = 0; i < size; i++)
     {
@@ -24,15 +22,14 @@ int main(void)
             break;
         }
     }
-    int rows = size / row_width;
 
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         if (buffer[i] == '\n')
         {
             continue;
         }
-        if (i - row_width > 0 && buffer[i - row_width] == '|' || buffer[i - row_width] == 'S')
+        if ((i - row_width > 0 && buffer[i - row_width] == '|') || (buffer[i - row_width] == 'S'))
         {
             if (buffer[i] == '^')
             {
@@ -48,6 +45,6 @@ int main(void)
     }
 
     assert(res == 1553);
-    free(buffer);
+
     return 0;
 }

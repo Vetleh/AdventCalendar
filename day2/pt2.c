@@ -9,7 +9,7 @@
 #define MAX_ROWS 256
 #define MAX_LEN 32
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
@@ -33,32 +33,7 @@ int main()
         pair = strtok(NULL, ",");
     }
 
-    // part 1
     char str[20];
-    long sum_invalid_pt1 = 0;
-
-    for (int i = 0; i < count; i++)
-    {
-        for (long k = atol(pairs[i][0]); k <= atol(pairs[i][1]); k++)
-        {
-            sprintf(str, "%ld", k);
-            int str_len = strlen(str);
-
-            if (str_len % 2 != 0)
-            {
-                continue;
-            }
-
-            int half_length = str_len / 2;
-            if (memcmp(str, str + half_length, half_length) == 0)
-            {
-                sum_invalid_pt1 += k;
-            };
-        }
-    }
-
-    // Part 2
-
     long sum_invalid_pt2 = 0;
     int partition = 1;
 
@@ -96,6 +71,12 @@ int main()
                 if (is_invalid)
                 {
                     sum_invalid_pt2 += j;
+                    if (str_len % 2)
+                    {
+                        long step = pow(10.0, str_len / 2);
+                        j += step - 1;
+                    }
+
                     break;
                 }
 
@@ -105,6 +86,5 @@ int main()
         }
     }
 
-    assert(sum_invalid_pt1 == 21898734247);
     assert(sum_invalid_pt2 == 28915664389);
 }

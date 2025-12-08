@@ -7,12 +7,12 @@
 #include "../utilities/file_utils.h"
 #define MAX_TOKENS 5000
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
 
-    int current_position = 50, last_position = 50, rotations = 0, points_to_zero = 0;
+    int current_position = 50, last_position = 50, rotations = 0;
     char seperator = '\n';
     char delim[2] = {seperator, '\0'};
 
@@ -28,7 +28,6 @@ int main()
 
     for (int i = 0; i < count; i++)
     {
-        points_to_zero += current_position == 0;
         last_position = current_position;
 
         int movement = atoi(tokens[i] + 1);
@@ -55,7 +54,5 @@ int main()
             current_position += 100;
         }
     }
-
-    assert(points_to_zero == 1092);
     assert(rotations == 6616);
 }

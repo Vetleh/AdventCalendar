@@ -55,4 +55,7 @@ dkms.conf
 *.dwo
 *.out
 day*/*.gz
+day*/pt1
+day*/pt2
 day*/main
+

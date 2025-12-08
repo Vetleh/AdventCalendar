@@ -8,7 +8,7 @@
 
 #define MAX_TOKENS 5000
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
@@ -19,7 +19,7 @@ int main()
 
     char number[1];
 
-    for (int j = 0; j <= size; j++)
+    for (size_t j = 0; j <= size; j++)
     {
         number[0] = buffer[j];
 

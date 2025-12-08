@@ -7,7 +7,7 @@
 
 #include "../utilities/file_utils.h"
 
-int main()
+int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
@@ -28,10 +28,9 @@ int main()
         digits_in_string++;
     }
 
-    int idx_processing = 0;
     int iteration_space = digits_in_string - 11;
 
-    for (int j = 0; j <= size; j += digits_in_string + 1)
+    for (size_t j = 0; j <= size; j += digits_in_string + 1)
     {
         for (int k = 0; k < 12; k++)
         {
@@ -65,8 +64,6 @@ int main()
             joltage_sum += joltage_arr[k] * pow(10, 11 - k);
             joltage_arr[k] = 0;
         }
-
-        idx_processing = 0;
         continue;
     }
 
