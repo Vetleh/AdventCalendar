@@ -53,7 +53,7 @@ int main(void)
                 sum_invalid_pt1 += k;
 
                 long step = pow(10.0, half_length);
-                k += step - 1;
+                k += step;
             };
         }
     }

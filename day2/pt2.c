@@ -74,7 +74,7 @@ int main(void)
                     if (str_len % 2)
                     {
                         long step = pow(10.0, str_len / 2);
-                        j += step - 1;
+                        j += step;
                     }
 
                     break;
