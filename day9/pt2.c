@@ -14,10 +14,8 @@ long rectangle_size(long x1, long y1, long x2, long y2)
     return (labs(x1 - x2) + 1) * (labs(y1 - y2) + 1);
 }
 
-static inline void set_X(char (*coords_map)[N], long x, long y, long *row_min, long *row_max, long *col_min, long *col_max)
+static inline void set_X(long x, long y, long *row_min, long *row_max, long *col_min, long *col_max)
 {
-    coords_map[x][y] = 'X';
-
     if (y < row_min[x])
     {
         row_min[x] = y;
@@ -39,10 +37,10 @@ static inline void set_X(char (*coords_map)[N], long x, long y, long *row_min, l
     }
 }
 
-void follow_point(char (*coords_map)[N],
-                  long x1, long y1, long x2, long y2,
-                  long *row_min, long *row_max,
-                  long *col_min, long *col_max)
+void follow_point(
+    long x1, long y1, long x2, long y2,
+    long *row_min, long *row_max,
+    long *col_min, long *col_max)
 {
     if (x1 == x2)
     {
@@ -51,11 +49,11 @@ void follow_point(char (*coords_map)[N],
 
         while (y != y2)
         {
-            set_X(coords_map, x1, y, row_min, row_max, col_min, col_max);
+            set_X(x1, y, row_min, row_max, col_min, col_max);
             y += step;
         }
 
-        set_X(coords_map, x1, y2, row_min, row_max, col_min, col_max);
+        set_X(x1, y2, row_min, row_max, col_min, col_max);
     }
     else
     {
@@ -64,11 +62,11 @@ void follow_point(char (*coords_map)[N],
 
         while (x != x2)
         {
-            set_X(coords_map, x, y1, row_min, row_max, col_min, col_max);
+            set_X(x, y1, row_min, row_max, col_min, col_max);
             x += step;
         }
 
-        set_X(coords_map, x2, y1, row_min, row_max, col_min, col_max);
+        set_X(x2, y1, row_min, row_max, col_min, col_max);
     }
 }
 
@@ -185,10 +183,10 @@ int main(void)
 
     for (size_t i = 0; i < rows; i++)
     {
-        follow_point(coords_map,
-                     coords[i][0], coords[i][1],
-                     coords[(i + 1) % rows][0], coords[(i + 1) % rows][1],
-                     row_min, row_max, col_min, col_max);
+        follow_point(
+            coords[i][0], coords[i][1],
+            coords[(i + 1) % rows][0], coords[(i + 1) % rows][1],
+            row_min, row_max, col_min, col_max);
     }
 
     long largest_area = 0;
