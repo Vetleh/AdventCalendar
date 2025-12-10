@@ -10,11 +10,11 @@ PARTS := pt1 pt2
 DAY_PT1_SRC := $(wildcard day*/pt1.c)
 DAY_PT2_SRC := $(wildcard day*/pt2.c)
 
-# Union of days that have pt1.c or pt2.c
-DAYS := $(sort \
-	$(patsubst day%/pt1.c,%,$(DAY_PT1_SRC)) \
-	$(patsubst day%/pt2.c,%,$(DAY_PT2_SRC)) \
-)
+RAW_DAYS := \
+  $(patsubst day%/pt1.c,%,$(DAY_PT1_SRC)) \
+  $(patsubst day%/pt2.c,%,$(DAY_PT2_SRC))
+
+DAYS := $(shell printf "%s\n" $(RAW_DAYS) | sort -nu)
 
 SAMPLY ?= samply
 SAMPLY_REC_OPTS ?=

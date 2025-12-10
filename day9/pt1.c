@@ -16,7 +16,6 @@ int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
-    size_t count = 0;
 
     size_t rows = 0;
     for (size_t i = 0; i < size; i++)
@@ -29,13 +28,12 @@ int main(void)
         rows++;
 
     long (*coords)[2] = malloc((size_t)rows * sizeof *coords);
-    int point_count = 0;
+    size_t point_count = 0;
 
     char *line = strtok(buffer, "\n");
     while (line && point_count < rows)
     {
         char *c1 = strchr(line, ',');
-        char *c2 = strchr(c1 + 1, ',');
 
         coords[point_count][0] = atol(line);
         coords[point_count][1] = atol(c1 + 1);
