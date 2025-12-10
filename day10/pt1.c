@@ -27,7 +27,7 @@ int click_buttons(int buttons[20], int target, int iter, int depth, int button_a
     return 0;
 }
 
-void parse_answers(char *buffer, int *answers, int i, int curr_row)
+void parse_answers(char *buffer, int *answers, size_t i, int curr_row)
 {
     i++;
     int value = 0;
@@ -47,40 +47,35 @@ void parse_answers(char *buffer, int *answers, int i, int curr_row)
     answers[curr_row] = value;
 }
 
-// void parse_buttons(char *buffer, int buttons[][N], int i, int curr_row, int curr_button)
-// {
-//     i++;
-//     int value = 0;
+void parse_buttons(char *buffer, int buttons[][N], size_t *i, int curr_row, int *curr_button)
+{
+    (*i)++;
+    int value = 0;
 
-//     while (buffer[i] != ')')
-//     {
-//         if (buffer[i] == ',')
-//         {
-//             i++;
-//             continue;
-//         }
-//         if (buffer[i] == ')')
-//         {
-//             break;
-//         }
+    while (buffer[*i] != ')')
+    {
+        if (buffer[*i] == ',')
+        {
+            (*i)++;
+            continue;
+        }
 
-//         char *end;
-//         long number = strtol(&buffer[i], &end, 10);
+        char *end;
+        long number = strtol(&buffer[*i], &end, 10);
 
-//         if (end == &buffer[i])
-//         {
-//             i++;
-//             continue;
-//         }
+        if (end == &buffer[*i])
+        {
+            (*i)++;
+            continue;
+        }
 
-//         value |= (1 << number);
-//         i += atol(end);
+        value |= (1 << number);
+        *i = (int)(end - buffer);
+    }
 
-//         i++;
-//     }
-//     buttons[curr_row][curr_button] = value;
-//     curr_button++;
-// }
+    buttons[curr_row][*curr_button] = value;
+    (*curr_button)++;
+}
 
 int main(void)
 {
@@ -104,7 +99,7 @@ int main(void)
     memset(buttons, 0, sizeof buttons);
 
     size_t curr_row = 0;
-    size_t curr_button = 0;
+    int curr_button = 0;
 
     for (size_t i = 0; i < size; i++)
     {
@@ -122,37 +117,7 @@ int main(void)
 
         if (buffer[i] == '(')
         {
-            i++;
-            int value = 0;
-
-            while (buffer[i] != ')')
-            {
-                if (buffer[i] == ',')
-                {
-                    i++;
-                    continue;
-                }
-                if (buffer[i] == ')')
-                {
-                    break;
-                }
-
-                char *end;
-                long number = strtol(&buffer[i], &end, 10);
-
-                if (end == &buffer[i])
-                {
-                    i++;
-                    continue;
-                }
-
-                value |= (1 << number);
-                i += atol(end);
-
-                i++;
-            }
-            buttons[curr_row][curr_button] = value;
-            curr_button++;
+            parse_buttons(buffer, buttons, &i, curr_row, &curr_button);
         }
     }
 
