@@ -84,6 +84,26 @@ int valid_rectangle(const long *row_min, const long *row_max, const long *col_mi
     long miny = (y1 < y2) ? y1 : y2;
     long maxy = (y1 > y2) ? y1 : y2;
 
+    if (!is_valid_point(row_min, row_max, col_min, col_max, minx, miny))
+    {
+        return 0;
+    }
+
+    if (!is_valid_point(row_min, row_max, col_min, col_max, minx, maxy))
+    {
+        return 0;
+    }
+
+    if (!is_valid_point(row_min, row_max, col_min, col_max, maxx, miny))
+    {
+        return 0;
+    }
+
+    if (!is_valid_point(row_min, row_max, col_min, col_max, maxx, maxy))
+    {
+        return 0;
+    }
+
     for (long x = minx; x <= maxx; x++)
     {
         if (!is_valid_point(row_min, row_max, col_min, col_max, x, miny))
