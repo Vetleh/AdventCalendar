@@ -5,7 +5,6 @@
 #include <assert.h>
 
 #include "../utilities/file_utils.h"
-#define GRIDS 6
 
 static long parse(const char *p)
 {
@@ -44,9 +43,6 @@ int main(void)
 
     if (size > 0 && buffer[size - 1] != '\n')
         rows++;
-
-    char edges[rows][GRIDS][3];
-    memset(edges, 0, sizeof(edges));
 
     int width = 25;
 
