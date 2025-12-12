@@ -28,17 +28,17 @@ int main(void)
         int has_changes = 0;
         for (int j = 0; j < column_length; j++)
         {
+            int line_before = (j - 1) * line_length;
+            int current_line = j * line_length;
+            int line_after = (j + 1) * line_length;
             for (int k = 0; k < line_length; k++)
             {
                 int neighbors = 0;
-                if (buffer[j * line_length + k] != '@')
+                char curr_char = buffer[j * line_length + k];
+                if (curr_char != '@')
                 {
                     continue;
                 }
-
-                int line_before = (j - 1) * line_length;
-                int current_line = j * line_length;
-                int line_after = (j + 1) * line_length;
 
                 // above
                 if (j - 1 >= 0)
