@@ -40,7 +40,7 @@ int main(void)
     {
         for (long k = atol(pairs[i][0]); k <= atol(pairs[i][1]); k++)
         {
-            sprintf(str, "%ld", k);
+            snprintf(str, sizeof str, "%ld", k);
             int str_len = strlen(str);
             if (str_len % 2 != 0)
             {

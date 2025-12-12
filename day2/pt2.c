@@ -41,7 +41,7 @@ int main(void)
     {
         for (long j = atol(pairs[i][0]); j <= atol(pairs[i][1]); j++)
         {
-            sprintf(str, "%ld", j);
+            snprintf(str, sizeof str, "%ld", j);
             int str_len = strlen(str);
             while (1)
             {

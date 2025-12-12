@@ -8,7 +8,7 @@ int main(void)
 {
     size_t size = 0;
     char *buffer = read_text_file("input.txt", &size);
-    size_t line_length = 0;
+    int line_length = 0;
     while (1)
     {
         if (buffer[line_length] == '\n')
@@ -21,19 +21,20 @@ int main(void)
 
     int items_removed = 0;
 
-    for (size_t j = 0; j < (size / line_length) + 1; j++)
+    int column_length = (int)(size / line_length) + 1;
+
+    for (int j = 0; j < column_length; j++)
     {
-        for (size_t k = 0; k < line_length; k++)
+        int line_before = (j - 1) * line_length;
+        int current_line = j * line_length;
+        int line_after = (j + 1) * line_length;
+        for (int k = 0; k < line_length; k++)
         {
             int neighbors = 0;
             if (buffer[j * line_length + k] != '@')
             {
                 continue;
             }
-
-            int line_before = (j - 1) * line_length;
-            int current_line = j * line_length;
-            int line_after = (j + 1) * line_length;
 
             // above
             if (j - 1 >= 0)
@@ -59,7 +60,7 @@ int main(void)
             }
 
             // below
-            if (j + 1 < (size / line_length) + 1)
+            if (j + 1 < column_length)
             {
                 for (int m = -1; m < 2; m++)
                 {

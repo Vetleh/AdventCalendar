@@ -23,25 +23,28 @@ int main(void)
         }
     }
 
-    for (size_t i = 0; i < size; i++)
+    for (int i = 0; i < (int)size; i++)
     {
         if (buffer[i] == '\n')
         {
             continue;
         }
-        if ((i - row_width > 0 && buffer[i - row_width] == '|') || (buffer[i - row_width] == 'S'))
-        {
-            if (buffer[i] == '^')
+
+        int earlier_row_idx = i - row_width;
+        if (earlier_row_idx >= 0)
+            if ((earlier_row_idx > 0 && buffer[earlier_row_idx] == '|') || (buffer[earlier_row_idx] == 'S'))
             {
-                res++;
-                buffer[i - 1] = '|';
-                buffer[i + 1] = '|';
+                if (buffer[i] == '^')
+                {
+                    res++;
+                    buffer[i - 1] = '|';
+                    buffer[i + 1] = '|';
+                }
+                else
+                {
+                    buffer[i] = '|';
+                }
             }
-            else
-            {
-                buffer[i] = '|';
-            }
-        }
     }
 
     assert(res == 1553);

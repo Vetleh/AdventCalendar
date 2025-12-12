@@ -17,11 +17,12 @@ int main(void)
     int last_highest_joltage_start = 0;
     int last_highest_joltage_end = 0;
 
-    char number[1];
+    char number[2];
 
     for (size_t j = 0; j <= size; j++)
     {
         number[0] = buffer[j];
+        number[1] = '\0';
 
         if (buffer[j] == '\n' || buffer[j] == '\0')
         {
